@@ -1,0 +1,28 @@
+# <string_literal> ::= \"〜\"
+# <expression> ::= is not sepcified 
+
+# entry point
+<spec> ::= "spec" <ident> <statements>
+
+<ident> ::= <alphabet> { <any_char> }
+
+<statements> ::= <statement> | <statement> <statements>
+
+<statement> ::= [ { <term_definition> } ] { <api_definition> }
+
+<term_definition> ::= 
+    "term" <string_literal> 
+    "description" <string_literal> 
+    "synonims" "{" <string_literal> [ { ',' <string_literal> } ] "}"
+
+<annotation> ::= "#" [ { <any_char> } ] <eol> 
+
+<symbol> ::= ":" <ident>
+
+<path> ::= { "/" (<ident> | <symbol>) } 
+
+# parts
+<eol> ::= "\n" | "\n\r"
+
+<api_definition> ::= [ { <annotation> } ] <path> "query" <expression> "pre" <expression> "post" <expression>
+

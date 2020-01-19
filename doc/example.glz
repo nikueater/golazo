@@ -1,0 +1,30 @@
+spec Document_1
+
+term "post" 
+    description "ユーザの投稿"
+    synonyms {"投稿", "ポスト"}
+
+get /users/:id/posts 
+    query 
+    { is_int limit
+    }
+    pre \x ->
+    { note "valid user"
+    }
+    post \x ->
+    { note "is player" => note "x.recommended is not empty"
+    }
+
+
+# add post
+# more description
+post /users/:id/posts 
+    query {}
+    pre \x ->
+            { true
+            }
+    post \x ->
+        satisfy
+            { note "hoge" => note "fuga"
+            }
+
