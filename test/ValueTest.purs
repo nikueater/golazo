@@ -8,7 +8,7 @@ import Data.Set as Set
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Parser as P
-import Test.Test (phase, shouldBe)
+import Test.Test (phase, shouldBe, shouldFail)
 import Text.Parsing.Parser (runParser)
 
 test :: Effect Unit
@@ -30,6 +30,11 @@ test = do
             ( runParser "\"Hello \\\"World!!\\\"\"" P.value)
             $ VText "Hello \"World!!\""
 
+    phase "natural" $ do
+        -------------------------------------------------------
+        shouldBe "ok" 
+            ( runParser "45" P.value )
+            $ VNat 45
 
     phase "pair" $ do
         -------------------------------------------------------

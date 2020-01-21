@@ -1,0 +1,29 @@
+spec Document_1
+
+term "post" 
+    description "ユーザの投稿"
+    synonyms {"投稿", "ポスト"}
+
+get /users/:id/posts 
+    query 
+    {}
+    pre \x ->
+    { true
+    }
+    post \x ->
+    { note "hoge" => note "fuga"
+    }
+
+
+# add post
+# more description
+post /users/:id/posts 
+    query {}
+    pre \x ->
+            { true
+            }
+    post \x ->
+        satisfy
+            { note "hoge" => note "fuga"
+            }
+

@@ -80,12 +80,21 @@ expr = do
         
         impl :: Parser String (Expr -> Expr -> Expr)
         impl = 
-            string "=>" $> BinOp "=>" <* skipSpaces
+            (
+                ( string "=>" 
+                <|> string "="
+                <|> string "::" 
+                <|> string ">"
+                <|> string "<"
+                <|> string ">="
+                <|> string "<="
+            ) >>= pure <$> \x -> BinOp x) <* skipSpaces
 
 value :: Parser String Expr
 value = do
     boolean
     <|> string
+    <|> number
     <|> try pair
     <|> set
     <|> try call
@@ -101,6 +110,10 @@ value = do
         string :: Parser String Expr
         string = do
            lexer.stringLiteral >>= \s -> pure (VText s)
+
+        number :: Parser String Expr
+        number = do
+           lexer.natural >>= \n -> pure (VNat n)
 
         pair :: Parser String Expr
         pair = do

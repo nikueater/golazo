@@ -29,4 +29,21 @@ test = do
                 (Call "note" (fromFoldable [VText "hoge"]))
                 (Call "note" (fromFoldable [VText "fuga"]))
 
+        -------------------------------------------------------
+        shouldBe "=" 
+            ( runParser "note \"hoge\" = note \"fuga\"" P.expr)
+            $ BinOp 
+                "=" 
+                (Call "note" (fromFoldable [VText "hoge"]))
+                (Call "note" (fromFoldable [VText "fuga"]))
+
+        -------------------------------------------------------
+        shouldBe "is" 
+            ( runParser "note \"hoge\" :: \"string\"" P.expr)
+            $ BinOp 
+                "::" 
+                (Call "note" (fromFoldable [VText "hoge"]))
+                (VText "string")
+
+
     

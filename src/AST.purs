@@ -72,6 +72,7 @@ instance showTerm :: Show Term where
 data Expr
      = VBool Boolean
      | VText String
+     | VNat Int
      | VPair (Tuple Symbol Expr)
      | VSet (Set Expr)
      | Call String (List Expr)
@@ -81,6 +82,7 @@ data Expr
 instance eqExpr :: Eq Expr where
     eq (VBool a) (VBool b) = eq a b
     eq (VText a) (VText b) = eq a b
+    eq (VNat a) (VNat b) = eq a b
     eq (VPair a) (VPair b) = eq a b
     eq (VSet a) (VSet b) = eq a b
     eq (Call an aas) (Call bn bas) = (eq an bn) && (eq aas bas)
@@ -91,6 +93,7 @@ instance eqExpr :: Eq Expr where
 instance showExpr :: Show Expr where
     show (VBool a) = show a
     show (VText a) = "\"" <> a <> "\"" 
+    show (VNat a) = show a
     show (VPair (Tuple k v)) = "(" <> show k <> ", " <> show v <> ")"
     show (VSet a) = "{" <> (joinWith ", " <<< fromFoldable <<< Set.map show) a <> "}"
     show (Call name args) = "{:call, :" <> name <> ", [" <> (joinWith ", " <<< fromFoldable <<< map show) args <> "]}"  
