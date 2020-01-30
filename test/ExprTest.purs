@@ -39,9 +39,9 @@ test = do
 
         -------------------------------------------------------
         shouldBe "is" 
-            ( runParser "note \"hoge\" :: \"string\"" P.expr)
+            ( runParser "note \"hoge\" is \"string\"" P.expr)
             $ BinOp 
-                "::" 
+                "is" 
                 (Call "note" (fromFoldable [VText "hoge"]))
                 (VText "string")
 

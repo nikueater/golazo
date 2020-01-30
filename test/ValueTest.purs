@@ -85,18 +85,14 @@ test = do
     phase "call" $ do
         -------------------------------------------------------
         shouldBe "single arity" 
-            ( runParser "note \"hello world\"" P.value )
+            ( runParser "note \"hello world\"" P.expr )
             $ Call "note" (fromFoldable [VText "hello world"])
 
         -------------------------------------------------------
         shouldBe "multiple arities" 
-            ( runParser "stringIsBool \"true\" false" P.value )
+            ( runParser "stringIsBool \"true\" false" P.expr )
             $ Call "stringIsBool" (fromFoldable [VText "true", VBool false])
 
-        -------------------------------------------------------
-        shouldBe "no arity" 
-            ( runParser "undefined" P.value )
-            $ Call "undefined" (fromFoldable [])
 
 
 

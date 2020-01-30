@@ -69,15 +69,15 @@ term = do
 expr :: Parser String Expr
 expr = do
     try binop
-    <|> value
+    <|> exprTerm
     where
         binop :: Parser String Expr
         binop = fix $ \_ ->
             buildExprParser
                 [ [Infix impl AssocRight]
                 ]
-                value
-        
+                exprTerm
+
         impl :: Parser String (Expr -> Expr -> Expr)
         impl = 
             (
@@ -88,18 +88,34 @@ expr = do
                 <|> string "<"
                 <|> string ">="
                 <|> string "<="
+                <|> string "is"
             ) >>= pure <$> \x -> BinOp x) <* skipSpaces
+        
+
+exprTerm :: Parser String Expr
+exprTerm = do
+    try call
+    <|> value
+    where
+        call :: Parser String Expr
+        call = fix $ \_ -> do
+            name <- lexer.identifier
+            skipSpaces
+            argh <- value
+            argt <- many value
+            pure $ Call name (Cons argh argt)
+
 
 value :: Parser String Expr
 value = do
-    boolean
+    fix $ \_ -> lexer.parens expr
+    <|> lambda
+    <|> boolean
     <|> string
     <|> number
     <|> try pair
     <|> set
-    <|> try call
-    <|> lambda
-    <|> (fix $ \_ -> lexer.parens expr)
+    <|> refer
     
     where
         boolean :: Parser String Expr
@@ -127,13 +143,6 @@ value = do
             xs <- lexer.braces (lexer.commaSep expr) >>= Set.fromFoldable >>> pure
             pure $ VSet xs
 
-        call :: Parser String Expr
-        call = fix $ \_ -> do
-            name <- lexer.identifier
-            skipSpaces
-            args <- many value
-            pure $ Call name args
-
         lambda :: Parser String Expr
         lambda = fix $ \_ -> do
             lexer.symbol "\\" *> skipSpaces
@@ -143,7 +152,10 @@ value = do
             e <- expr
             pure $ Lambda (Symbol n) e
 
-
+        refer :: Parser String Expr
+        refer = do
+            s <- lexer.identifier >>= \x -> pure (Symbol x)
+            pure $ Refer s
 
 path :: Parser String Path
 path = do

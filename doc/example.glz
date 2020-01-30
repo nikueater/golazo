@@ -4,16 +4,22 @@ term "post"
     description "ユーザの投稿"
     synonyms {"投稿", "ポスト"}
 
+
+
 get /users/:id/posts 
-    query 
-    { is_int limit
-    }
-    pre \x ->
-    { note "valid user"
-    }
+    query \x ->
+        satisfy x
+            { id is string 
+            , age is natural
+            }
+    pre \x -> 
+        satisfy x
+            { note "valid user"
+            }
     post \x ->
-    { note "is player" => note "x.recommended is not empty"
-    }
+        satisfy
+            { note "is player" => note "x.recommended is not empty"
+            }
 
 
 # add post

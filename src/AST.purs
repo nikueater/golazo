@@ -78,6 +78,7 @@ data Expr
      | Call String (List Expr)
      | BinOp String Expr Expr 
      | Lambda Symbol Expr
+     | Refer Symbol
 
 instance eqExpr :: Eq Expr where
     eq (VBool a) (VBool b) = eq a b
@@ -88,6 +89,7 @@ instance eqExpr :: Eq Expr where
     eq (Call an aas) (Call bn bas) = (eq an bn) && (eq aas bas)
     eq (BinOp an al ar) (BinOp bn bl br) = (eq an bn) && (eq al bl) && (eq ar br)
     eq (Lambda av ae) (Lambda bv be) = (eq av bv) && (eq ae be) 
+    eq (Refer a) (Refer b) = eq a b
     eq _ _ = false
 
 instance showExpr :: Show Expr where
@@ -99,6 +101,7 @@ instance showExpr :: Show Expr where
     show (Call name args) = "{:call, :" <> name <> ", [" <> (joinWith ", " <<< fromFoldable <<< map show) args <> "]}"  
     show (BinOp op tl tr) = "{:call, :(" <> op <> "), [" <> (joinWith ", " <<< map show) [tl, tr] <> "]}"
     show (Lambda (Symbol v) e) = "λ" <> v <> "->" <> (show e)
+    show (Refer a) = "ref" <> (show a)
 
 derive instance ordExpr :: Ord Expr
 
