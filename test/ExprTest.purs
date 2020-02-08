@@ -2,10 +2,8 @@ module Test.ExprTest (test) where
 
 import Prelude
 
-import AST (Expr(..), Symbol(..))
+import AST (Expr(..))
 import Data.List (fromFoldable)
-import Data.Set as Set
-import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Parser as P
 import Test.Test (phase, shouldBe)

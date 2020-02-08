@@ -7,6 +7,7 @@ import Control.Alt ((<|>))
 import Control.Lazy (fix)
 import Data.Array (fold, fromFoldable)
 import Data.List (List(..), many, toUnfoldable)
+import Data.List as List
 import Data.Set as Set
 import Data.String (joinWith, trim)
 import Data.String.CodeUnits (fromCharArray)
@@ -109,6 +110,7 @@ exprTerm = do
 value :: Parser String Expr
 value = do
     fix $ \_ -> lexer.parens expr
+    <|> try member
     <|> lambda
     <|> boolean
     <|> string
@@ -156,6 +158,14 @@ value = do
         refer = do
             s <- lexer.identifier >>= \x -> pure (Symbol x)
             pure $ Refer s
+
+        member :: Parser String Expr
+        member = do
+            parent <- lexer.identifier >>= \x -> pure (Refer $ Symbol x)
+            _ <- lexer.symbol "."
+            ch <- lexer.identifier >>= \x -> pure (VSymbol $ Symbol x)
+            ct <- many (lexer.symbol "." *> lexer.identifier >>= \x -> pure (VSymbol $ Symbol x))
+            (pure <<< Call "@get") $ List.fromFoldable [parent , VList (Cons ch ct) ]
 
 path :: Parser String Path
 path = do

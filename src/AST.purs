@@ -75,6 +75,8 @@ data Expr
      | VNat Int
      | VPair (Tuple Symbol Expr)
      | VSet (Set Expr)
+     | VList (List Expr)
+     | VSymbol Symbol
      | Call String (List Expr)
      | BinOp String Expr Expr 
      | Lambda Symbol Expr
@@ -86,6 +88,8 @@ instance eqExpr :: Eq Expr where
     eq (VNat a) (VNat b) = eq a b
     eq (VPair a) (VPair b) = eq a b
     eq (VSet a) (VSet b) = eq a b
+    eq (VList a) (VList b) = eq a b
+    eq (VSymbol a) (VSymbol b) = eq a b
     eq (Call an aas) (Call bn bas) = (eq an bn) && (eq aas bas)
     eq (BinOp an al ar) (BinOp bn bl br) = (eq an bn) && (eq al bl) && (eq ar br)
     eq (Lambda av ae) (Lambda bv be) = (eq av bv) && (eq ae be) 
@@ -98,6 +102,8 @@ instance showExpr :: Show Expr where
     show (VNat a) = show a
     show (VPair (Tuple k v)) = "(" <> show k <> ", " <> show v <> ")"
     show (VSet a) = "{" <> (joinWith ", " <<< fromFoldable <<< Set.map show) a <> "}"
+    show (VList a) = "[" <> (joinWith ", " <<< fromFoldable <<< map show) a <> "]"
+    show (VSymbol a) = show a
     show (Call name args) = "{:call, :" <> name <> ", [" <> (joinWith ", " <<< fromFoldable <<< map show) args <> "]}"  
     show (BinOp op tl tr) = "{:call, :(" <> op <> "), [" <> (joinWith ", " <<< map show) [tl, tr] <> "]}"
     show (Lambda (Symbol v) e) = "λ" <> v <> "->" <> (show e)

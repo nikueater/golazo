@@ -93,6 +93,27 @@ test = do
             ( runParser "stringIsBool \"true\" false" P.expr )
             $ Call "stringIsBool" (fromFoldable [VText "true", VBool false])
 
+    phase "object property" $ do
+        -------------------------------------------------------
+        shouldBe "single child" 
+            ( runParser "hoo.bar" P.expr )
+            $ Call "@get" (fromFoldable 
+                            [ Refer (Symbol "hoo")
+                            , VList $ fromFoldable 
+                                [ VSymbol (Symbol "bar")
+                                ]
+                            ])
 
+         -------------------------------------------------------
+        shouldBe "nested children" 
+            ( runParser "hoo.bar.hoge.fuga" P.expr )
+            $ Call "@get" (fromFoldable 
+                            [ Refer (Symbol "hoo")
+                            , VList $ fromFoldable 
+                                [ VSymbol (Symbol "bar")
+                                , VSymbol (Symbol "hoge")
+                                , VSymbol (Symbol "fuga")
+                                ]
+                            ])
 
-
+            
