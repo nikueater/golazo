@@ -90,6 +90,7 @@ expr = do
                 <|> string ">="
                 <|> string "<="
                 <|> string "is"
+                <|> string "&"
             ) >>= pure <$> \x -> BinOp x) <* skipSpaces
         
 
