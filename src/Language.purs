@@ -23,7 +23,7 @@ golazoStyle = P.LanguageDef (P.unGenLanguageDef emptyDef)
     , nestedComments = false
     , opStart = oneOf opChars
     , opLetter = oneOf opChars
-    , reservedNames = ["spec", "using", "term", "post", "synonyms", "pre", "query", "is"]
+    , reservedNames = ["spec", "using", "term", "post", "synonyms", "pre", "query", "is", "in"]
     , reservedOpNames = (Functor.map CodeUnits.singleton opChars) <> ["=>"]
     }
     where

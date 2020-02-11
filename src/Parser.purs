@@ -5,7 +5,7 @@ import Prelude
 import AST (Annotation(..), Expr(..), Path(..), PathElement(..), Document(..), Symbol(..), Term(..), Spec(..))
 import Control.Alt ((<|>))
 import Control.Lazy (fix)
-import Data.Array (fold, fromFoldable)
+import Data.Array (fromFoldable)
 import Data.Char.Unicode (isAlpha, isAlphaNum)
 import Data.List (List(..), many, toUnfoldable)
 import Data.List as List
@@ -97,6 +97,7 @@ expr = do
                 <|> string ">="
                 <|> string "<="
                 <|> string "is"
+                <|> string "in"
                 <|> string "&"
             ) >>= pure <$> \x -> BinOp x) <* skipSpaces
         

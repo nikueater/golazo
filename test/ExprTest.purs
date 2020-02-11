@@ -4,6 +4,8 @@ import Prelude
 
 import AST (Expr(..), Symbol(..))
 import Data.List (fromFoldable)
+import Data.Set (Set)
+import Data.Set as Set
 import Effect (Effect)
 import Parser as P
 import Test.Test (phase, shouldBe)
@@ -42,6 +44,14 @@ test = do
                 "is" 
                 (Call "note" (fromFoldable [VText "hoge"]))
                 (VText "string")
+
+        -------------------------------------------------------
+        shouldBe "in" 
+            ( runParser "x in {1, 2, 3}" P.expr)
+            $ BinOp 
+                "in"
+                (Refer (Symbol "x"))
+                (VSet (Set.fromFoldable [VNat 1, VNat 2, VNat 3]))
 
         -------------------------------------------------------
         shouldBe "dealing with objects" 
