@@ -45,13 +45,14 @@ test = do
 
         -------------------------------------------------------
         shouldBe "dealing with objects" 
-            ( runParser "x.foo => y.bar" P.expr)
+            ( runParser "x.post.length > y.bar" P.expr)
             $ BinOp 
-                "=>" 
+                ">" 
                 (Call "@get" (fromFoldable 
                     [ Refer (Symbol "x")
                     , VList $ fromFoldable 
-                        [ VSymbol (Symbol "foo")
+                        [ VSymbol (Symbol "post")
+                        , VSymbol (Symbol "length")
                         ]
                     ]
                 ))

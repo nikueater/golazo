@@ -6,6 +6,7 @@ import AST (Annotation(..), Expr(..), Path(..), PathElement(..), Document(..), S
 import Control.Alt ((<|>))
 import Control.Lazy (fix)
 import Data.Array (fold, fromFoldable)
+import Data.Char.Unicode (isAlpha, isAlphaNum)
 import Data.List (List(..), many, toUnfoldable)
 import Data.List as List
 import Data.Set as Set
@@ -16,7 +17,7 @@ import Language (lexer)
 import Text.Parsing.Parser (Parser)
 import Text.Parsing.Parser.Combinators (many1Till, manyTill, notFollowedBy, optionMaybe, try)
 import Text.Parsing.Parser.Expr (Assoc(..), Operator(..), buildExprParser)
-import Text.Parsing.Parser.String (anyChar, char, eof, skipSpaces, string)
+import Text.Parsing.Parser.String (anyChar, char, eof, oneOf, satisfy, skipSpaces, string)
 
 newline :: Parser String Unit
 newline = do
@@ -168,7 +169,7 @@ value = do
 
         call :: Parser String Expr
         call = fix $ \_ -> do
-            name <- lexer.identifier
+            name <- ident
             skipSpaces
             argh <- value
             argt <- many value
@@ -177,11 +178,18 @@ value = do
 
         member :: Parser String Expr
         member = do
-            parent <- lexer.identifier >>= \x -> pure (Refer $ Symbol x)
+            parent <- ident >>= \x -> pure (Refer $ Symbol x)
             _ <- lexer.symbol "."
-            ch <- lexer.identifier >>= \x -> pure (VSymbol $ Symbol x)
-            ct <- many (lexer.symbol "." *> lexer.identifier >>= \x -> pure (VSymbol $ Symbol x))
+            ch <- ident >>= \x -> pure (VSymbol $ Symbol x)
+            ct <- many (lexer.symbol "." *> ident >>= \x -> pure (VSymbol $ Symbol x))
             (pure <<< Call "@get") $ List.fromFoldable [parent , VList (Cons ch ct) ]
+
+        ident :: Parser String String
+        ident = do
+            h <- satisfy isAlpha 
+            ts <- many ((satisfy isAlphaNum) <|> oneOf ['_'])
+            skipSpaces
+            pure $ fromCharArray ([h] <> (fromFoldable ts))
 
 path :: Parser String Path
 path = do
