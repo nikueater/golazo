@@ -2,7 +2,7 @@ module Test.ExprTest (test) where
 
 import Prelude
 
-import AST (Expr(..))
+import AST (Expr(..), Symbol(..))
 import Data.List (fromFoldable)
 import Effect (Effect)
 import Parser as P
@@ -43,5 +43,48 @@ test = do
                 (Call "note" (fromFoldable [VText "hoge"]))
                 (VText "string")
 
+        -------------------------------------------------------
+        shouldBe "dealing with objects" 
+            ( runParser "x.foo => y.bar" P.expr)
+            $ BinOp 
+                "=>" 
+                (Call "@get" (fromFoldable 
+                    [ Refer (Symbol "x")
+                    , VList $ fromFoldable 
+                        [ VSymbol (Symbol "foo")
+                        ]
+                    ]
+                ))
+                (Call "@get" (fromFoldable 
+                    [ Refer (Symbol "y")
+                    , VList $ fromFoldable
+                        [ VSymbol (Symbol "bar")
+                        ]
+                    ]
+                ))
+
+        -------------------------------------------------------
+        shouldBe "dealing with objects" 
+            ( runParser "x.foo = null => y.bar != null" P.expr)
+            $ BinOp 
+                "=>" 
+                (BinOp "="
+                    (Call "@get" (fromFoldable 
+                        [ Refer (Symbol "x")
+                        , VList $ fromFoldable 
+                            [ VSymbol (Symbol "foo")
+                            ]
+                        ]))
+                    (Refer (Symbol "null"))
+                )
+                ( BinOp "!="
+                    (Call "@get" (fromFoldable 
+                        [ Refer (Symbol "y")
+                        , VList $ fromFoldable
+                            [ VSymbol (Symbol "bar")
+                            ]
+                        ]))
+                    (Refer (Symbol "null"))
+                )
 
     

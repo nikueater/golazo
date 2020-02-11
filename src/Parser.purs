@@ -14,7 +14,7 @@ import Data.String.CodeUnits (fromCharArray)
 import Data.Tuple (Tuple(..))
 import Language (lexer)
 import Text.Parsing.Parser (Parser)
-import Text.Parsing.Parser.Combinators (many1Till, manyTill, optionMaybe, try)
+import Text.Parsing.Parser.Combinators (many1Till, manyTill, notFollowedBy, optionMaybe, try)
 import Text.Parsing.Parser.Expr (Assoc(..), Operator(..), buildExprParser)
 import Text.Parsing.Parser.String (anyChar, char, eof, skipSpaces, string)
 
@@ -75,15 +75,21 @@ expr = do
         binop :: Parser String Expr
         binop = fix $ \_ ->
             buildExprParser
-                [ [Infix impl AssocRight]
+                [   [ Infix ops AssocRight
+                    ]
+                ,   [ Infix (op2 "=>") AssocRight
+                    ]
                 ]
                 exprTerm
 
-        impl :: Parser String (Expr -> Expr -> Expr)
-        impl = 
+        op2 :: String -> Parser String (Expr -> Expr -> Expr)
+        op2 x = (string x >>= pure <$> \y -> BinOp y) <* skipSpaces 
+
+        ops :: Parser String (Expr -> Expr -> Expr)
+        ops = 
             (
-                ( string "=>" 
-                <|> string "="
+            ( try (string "=" <* notFollowedBy (string ">"))
+                <|> string "!=" 
                 <|> string "::" 
                 <|> string ">"
                 <|> string "<"
@@ -159,6 +165,15 @@ value = do
         refer = do
             s <- lexer.identifier >>= \x -> pure (Symbol x)
             pure $ Refer s
+
+        call :: Parser String Expr
+        call = fix $ \_ -> do
+            name <- lexer.identifier
+            skipSpaces
+            argh <- value
+            argt <- many value
+            pure $ Call name (Cons argh argt)
+
 
         member :: Parser String Expr
         member = do

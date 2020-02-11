@@ -104,7 +104,7 @@ test = do
                                 ]
                             ])
 
-         -------------------------------------------------------
+        -------------------------------------------------------
         shouldBe "nested children" 
             ( runParser "hoo.bar.hoge.fuga" P.expr )
             $ Call "@get" (fromFoldable 
