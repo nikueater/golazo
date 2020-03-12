@@ -2,11 +2,14 @@
 ## environment
 
 ```zsh
-% npm install -g spago
+% npm link
 ```
 
 ## run
 
 ```zsh
-% spago run --node-args "doc/example.glz"
+% golazo "doc/example.glz"
 ```
+
+## build
+% make

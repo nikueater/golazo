@@ -1,0 +1,37 @@
+{
+  "name": "golazo",
+  "version": "0.1.0",
+  "description": "```zsh % npm install -g spago ```",
+  "bin": {
+    "golazo": "index.js"
+  },
+  "engines": {
+    "node": ">=12.2"
+  },
+  "files": [
+    "README.md",
+    "package.json",
+    "index.js",
+    "output"
+  ],
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npx spago test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nikueater/golazo.git"
+  },
+  "author": "nikueater <nikueater@outlook.com> (https://github.com/nikueater)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/nikueater/golazo/issues"
+  },
+  "homepage": "https://github.com/nikueater/golazo#readme",
+  "devDependencies": {
+    "spago": "^0.14.0"
+  }
+}

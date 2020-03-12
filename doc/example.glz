@@ -5,12 +5,11 @@ term "post"
     synonyms {"投稿", "ポスト"}
 
 
-
 get /users/:id/posts 
     { query: \x ->
         satisfy x 
-            { id :: string 
-            , age :: natural
+            { id in String 
+            , age in Natural
             }
 
     , pre: \x -> 
@@ -28,28 +27,10 @@ get /users/:id/posts
 get /users/:id/posts 
     { query: \x ->
         satisfy x 
-            { id :: string 
-            , age :: natural
+            { id in String 
+            , age in Natural
             }
-
-    , pre: \x -> 
-        satisfy x
-            { note "valid user"
-            }
-
-    , post: \x ->
-        satisfy x
-            { (note "is player") => (note "x.recommended is not empty")
-            } 
-    }
-
-get /users/:id/posts 
-    { query: \x ->
-        satisfy x 
-            { id :: string 
-            , age :: natural
-            }
-    , pre: \_ -> true
+    , pre: skip
     , post: \x ->
         satisfy
             { (note "hoge") => (note "fuga")
