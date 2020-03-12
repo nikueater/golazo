@@ -7,30 +7,51 @@ term "post"
 
 
 get /users/:id/posts 
-    query \x ->
-        satisfy x
-            { id is string 
-            , age is natural
+    { query: \x ->
+        satisfy x 
+            { id :: string 
+            , age :: natural
             }
-    pre \x -> 
+
+    , pre: \x -> 
         satisfy x
             { note "valid user"
             }
-    post \x ->
+
+    , post: \x ->
+        satisfy x
+            { (note "is player") => (note "x.recommended is not empty")
+            } 
+    }
+
+# TEST
+get /users/:id/posts 
+    { query: \x ->
+        satisfy x 
+            { id :: string 
+            , age :: natural
+            }
+
+    , pre: \x -> 
+        satisfy x
+            { note "valid user"
+            }
+
+    , post: \x ->
+        satisfy x
+            { (note "is player") => (note "x.recommended is not empty")
+            } 
+    }
+
+get /users/:id/posts 
+    { query: \x ->
+        satisfy x 
+            { id :: string 
+            , age :: natural
+            }
+    , pre: \_ -> true
+    , post: \x ->
         satisfy
-            { note "is player" => note "x.recommended is not empty"
+            { (note "hoge") => (note "fuga")
             }
-
-
-# add post
-# more description
-post /users/:id/posts 
-    query {}
-    pre \x ->
-            { true
-            }
-    post \x ->
-        satisfy
-            { note "hoge" => note "fuga"
-            }
-
+    }

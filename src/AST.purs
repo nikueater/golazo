@@ -1,152 +1,127 @@
 module AST where
 
-import Control.Semigroupoid ((<<<))
-import Data.Array (fromFoldable)
-import Data.Eq (class Eq, eq)
-import Data.Functor (map)
-import Data.HeytingAlgebra ((&&))
-import Data.List (List)
-import Data.Maybe (Maybe)
-import Data.Monoid ((<>))
-import Data.Ord (class Ord, compare)
-import Data.Set (Set)
-import Data.Set as Set
-import Data.Show (class Show, show)
+import Prelude
+
+import Data.Array as Array
+import Data.List (List(..))
+import Data.List as List
 import Data.String (joinWith)
 import Data.Tuple (Tuple(..))
+import Text.Parsing.Parser.Pos (Position, initialPos)
+
+
+keyValue :: Position -> String -> Expr -> Expr
+keyValue p k v = 
+    Pair p [Symbol initialPos k, v]
+
+document :: {name :: String, terms :: Array Expr, endpoints :: Array Expr} -> Expr
+document {name, terms, endpoints} =
+    Pair initialPos
+        [ Symbol initialPos name
+        , keyValue initialPos "glossary" (Set initialPos terms)
+        , keyValue initialPos "endpoints" (Set initialPos endpoints)
+        ]
+
+binary :: Position -> String -> Expr -> Expr -> Expr
+binary pos op lt rt =
+    Apply pos
+        [ Symbol pos op
+        , sequential pos [lt, rt]
+        ]
+
+apply :: Position -> String -> Array Expr -> Expr
+apply pos fun args =
+    Apply pos 
+        [ Symbol pos fun
+        , sequential pos args
+        ]
+
+-- | Converts an array to a set of pairs of index and value
+sequential :: Position -> Array Expr -> Expr
+sequential pos es =
+    Set pos $ indexed 0 (List.fromFoldable es) Nil
+    where
+        indexed :: Int -> List Expr -> List Expr -> Array Expr
+        indexed _ Nil ys = Array.fromFoldable ys
+        indexed i (Cons x xs) ys = indexed (i + 1) xs (append i x ys)
+
+        append :: Int -> Expr -> List Expr -> List Expr
+        append i x xs = 
+            List.snoc xs (Pair pos [Nat pos i, x])
+
+-- | Converts a boolean value to a symbol
+bool :: Position -> Boolean -> Expr
+bool p true = Symbol p "true"
+bool p false = Symbol p "false"
 
 
 
--- Symbol
-newtype Symbol = Symbol String
 
-instance eqSymbol :: Eq Symbol where
-    eq (Symbol a) (Symbol b) = eq a b
-
-instance showSymbol :: Show Symbol where
-    show (Symbol a) = ":" <> a
-
-instance ordSymbol :: Ord Symbol where
-    compare (Symbol a) (Symbol b) = compare a b
-
--- SPEC
-newtype Document = Document
-    { name :: String
-    , specs :: List Spec
-    , terms :: List Term
-    }
-
-instance eqDocument :: Eq Document where
-    eq (Document a) (Document b) = (eq a.name b.name) && (eq a.specs b.specs) && (eq a.terms b.terms)
-
-instance showDocument :: Show Document where
-    show (Document a) = show a
-
-
--- ANNOTATION
-newtype Annotation = Annotation String   
-
-instance eqAnnotaion :: Eq Annotation where
-    eq (Annotation a) (Annotation b) = eq a b
-
-instance showAnnotation :: Show Annotation where
-    show (Annotation a) = "@" <> a
-
-
--- TERM
-newtype Term = Term
-    { name :: String
-    , desc :: String
-    , synonyms :: Array String
-    }
-
-instance eqTerm :: Eq Term where
-    eq (Term a) (Term b) = eq a b 
-
-instance showTerm :: Show Term where
-    show (Term a) = "{ name = \"" <> a.name <> "\", desc = \"" <> a.desc <> "\", synonyms = \"" <> (joinWith "," a.synonyms) <> "\" }"
-
--- EXPRESSION
-
--- VALUE
 data Expr
-     = VBool Boolean
-     | VText String
-     | VNat Int
-     | VPair (Tuple Symbol Expr)
-     | VSet (Set Expr)
-     | VList (List Expr)
-     | VSymbol Symbol
-     | Call String (List Expr)
-     | BinOp String Expr Expr 
-     | Lambda Symbol Expr
-     | Refer Symbol
-
-instance eqExpr :: Eq Expr where
-    eq (VBool a) (VBool b) = eq a b
-    eq (VText a) (VText b) = eq a b
-    eq (VNat a) (VNat b) = eq a b
-    eq (VPair a) (VPair b) = eq a b
-    eq (VSet a) (VSet b) = eq a b
-    eq (VList a) (VList b) = eq a b
-    eq (VSymbol a) (VSymbol b) = eq a b
-    eq (Call an aas) (Call bn bas) = (eq an bn) && (eq aas bas)
-    eq (BinOp an al ar) (BinOp bn bl br) = (eq an bn) && (eq al bl) && (eq ar br)
-    eq (Lambda av ae) (Lambda bv be) = (eq av bv) && (eq ae be) 
-    eq (Refer a) (Refer b) = eq a b
-    eq _ _ = false
+    = Symbol Position String
+    | Text Position String
+    | Nat Position Int
+    | Pair Position (Array Expr)
+    | Set Position (Array Expr)
+    | Fun Position (Array Expr)
+    | Apply Position (Array Expr)
 
 instance showExpr :: Show Expr where
-    show (VBool a) = show a
-    show (VText a) = "\"" <> a <> "\"" 
-    show (VNat a) = show a
-    show (VPair (Tuple k v)) = "(" <> show k <> ", " <> show v <> ")"
-    show (VSet a) = "{" <> (joinWith ", " <<< fromFoldable <<< Set.map show) a <> "}"
-    show (VList a) = "[" <> (joinWith ", " <<< fromFoldable <<< map show) a <> "]"
-    show (VSymbol a) = show a
-    show (Call name args) = "{:call, :" <> name <> ", [" <> (joinWith ", " <<< fromFoldable <<< map show) args <> "]}"  
-    show (BinOp op tl tr) = "{:call, :(" <> op <> "), [" <> (joinWith ", " <<< map show) [tl, tr] <> "]}"
-    show (Lambda (Symbol v) e) = "λ" <> v <> "->" <> (show e)
-    show (Refer a) = "ref" <> (show a)
+    show (Symbol _ s) = showValue "symbol" s
+    show (Text _ s) = showValue "text" s 
+    show (Nat _ n) = showValue "nat" (show n)
+    show (Pair _ xs) = showPair xs
+    show (Set _ xs) = showSet xs
+    show (Fun _ xs) = showValue "fun" (show xs)
+    show (Apply _ xs) = showValue "apply" (show xs)
 
-derive instance ordExpr :: Ord Expr
-
-
--- PATH
-data PathElement
-    = PStatic String
-    | PAssignable Symbol
-
-instance eqPathElement :: Eq PathElement where
-    eq (PStatic a) (PStatic b) = eq a b
-    eq (PAssignable a) (PAssignable b) = eq a b
+instance eqExpr :: Eq Expr where
+    eq (Symbol _ a) (Symbol _ b) = a == b
+    eq (Text _ a) (Text _ b) = a == b
+    eq (Nat _ a) (Nat _ b) = a == b
+    eq (Pair _ a) (Pair _ b) = a == b
+    eq (Set _ a) (Set _ b) = a == b
+    eq (Fun _ a) (Fun _ b) = a == b
+    eq (Apply _ a) (Apply _ b) = a == b
     eq _ _ = false
 
-instance showPathElement :: Show PathElement where
-    show (PStatic a) = a
-    show (PAssignable a) = show a
-
-newtype Path = Path (List PathElement)
-
-derive instance eqPath :: Eq Path
-
-instance showPath :: Show Path where
-    show (Path a) = "/" <> (joinWith "/" <<< map show <<< fromFoldable) a
 
 
--- API
-data Spec
-    = Api 
-        { annotation :: Maybe Annotation
-        , method :: String
-        , path :: Path
-        , query :: Expr
-        , pre :: Expr
-        , post :: Expr
-        }
-    
-derive instance eqSpec :: Eq Spec
-instance showSpec :: Show Spec where
-    show (Api a) = show a
+showValue :: String -> String -> String
+showValue name value = 
+    node 
+        [ Tuple "name" (show name)
+        , Tuple "value" (show value) 
+        ] 
 
+showPair :: Array Expr -> String
+showPair xs =
+    node
+        [ Tuple "name" (show "pair")
+        , Tuple "value" $ arrayString xs
+        ]
 
+showSet :: Array Expr -> String
+showSet xs =
+    node 
+        [ Tuple "name" (show "set")
+        , Tuple "value" $ arrayString xs
+        ]
+        
+arrayString :: Array Expr -> String
+arrayString xs = 
+    "[" <> values xs <> "]"
+    where
+          values = joinWith "," <<< map show
+
+node :: Array (Tuple String String) -> String
+node xs =  "{" <> properties xs <>  "}"
+    where 
+          kv :: Tuple String String -> String
+          kv (Tuple k v) =  (string k) <> ":" <> v
+
+          properties :: Array (Tuple String String) -> String
+          properties = joinWith "," <<< map kv
+
+          string :: String -> String
+          string s = "\"" <> s <> "\""

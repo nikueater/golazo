@@ -1,4 +1,4 @@
-module Test.Test (shouldBe, phase, shouldFail) where
+module Test.Test (shouldBe, phase, shouldFail, pos) where
 
 import Prelude
 
@@ -8,9 +8,12 @@ import Effect (Effect)
 import Effect.Class.Console (log, error)
 import Effect.Exception as Exp
 import Text.Parsing.Parser (ParseError)
+import Text.Parsing.Parser.Pos (Position(..), initialPos)
 
 data Result = Success String | Failed String
 
+pos :: Position
+pos = initialPos
 
 test :: forall a. Eq a => Show a => String -> (Either ParseError a) -> a -> Either String String
 test msg value expected =
