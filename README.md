@@ -1,8 +1,10 @@
 
+this is an experimental module
+
 ## environment
 
 ```zsh
-% npm link
+% npm install -g golazo
 ```
 
 ## run

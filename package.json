@@ -12,7 +12,7 @@
     "README.md",
     "package.json",
     "index.js",
-    "output"
+    "output/index.js"
   ],
   "directories": {
     "doc": "doc",
