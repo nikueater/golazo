@@ -31,7 +31,7 @@ syn match golazoAnnotation "\v#(.*)$"
 
 " Note: this is a hack to prevent 'keywords' being highlighted
 syn match golazoKeywordAsProperty "\%(\.\@1<!\.\)\_s*\%([_[:lower:]][_[:alnum:]]*\)" transparent contains=NONE
-syn match golazoObjectKey "[]})\"':]\@1<!\<\%(\h\|[^\x00-\x7F]\)\%(\w\|[^\x00-\x7F]\)*[!?]\=:[[:space:],]\@=" he=e-1
+syn match golazoObjectKey "[]})\"':]\@1<!\<\%(\h\|[^\x00-\x7F]\)\%(\w\|[^\x00-\x7F]\)*[!?]\=:[[:space:],]\@="he=e-1
 
 hi def link golazoType Type
 hi def link golazoOperator Operator
