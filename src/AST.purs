@@ -72,8 +72,8 @@ instance showExpr :: Show Expr where
     show (Nat _ n) = showValue "nat" (show n)
     show (Pair _ xs) = showPair xs
     show (Set _ xs) = showSet xs
-    show (Fun _ xs) = showValue "fun" (show xs)
-    show (Apply _ xs) = showValue "apply" (show xs)
+    show (Fun _ xs) = showFun xs
+    show (Apply _ xs) = showApply xs
 
 instance eqExpr :: Eq Expr where
     eq (Symbol _ a) (Symbol _ b) = a == b
@@ -107,7 +107,21 @@ showSet xs =
         [ Tuple "name" (show "set")
         , Tuple "value" $ arrayString xs
         ]
-        
+
+showFun :: Array Expr -> String 
+showFun xs =
+    node
+        [ Tuple "name" (show "fun")
+        , Tuple "value" $ arrayString xs
+        ]
+
+showApply :: Array Expr -> String 
+showApply xs =
+    node
+        [ Tuple "name" (show "apply")
+        , Tuple "value" $ arrayString xs
+        ]
+
 arrayString :: Array Expr -> String
 arrayString xs = 
     "[" <> values xs <> "]"

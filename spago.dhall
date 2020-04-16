@@ -7,7 +7,8 @@
     , "ordered-collections"
     , "parsing"
     , "psci-support"
+    , "spec"
     ]
 , packages = ./packages.dhall
-, sources = [  "src/**/*.purs", "test/**/*.purs" ]
+, sources = [ "src/**/*.purs", "test/**/*.purs" ]
 }
