@@ -1,7 +1,7 @@
 {
   "name": "golazo",
   "version": "0.1.0",
-  "description": "```zsh % npm install -g spago ```",
+  "description": "```experimental module```",
   "bin": {
     "golazo": "index.js"
   },
